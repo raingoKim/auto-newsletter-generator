@@ -7,9 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export class NewsletterGenerator {
-  constructor(apiKey) {
+  constructor() {
     this.client = new Anthropic({
-      apiKey: apiKey || process.env.ANTHROPIC_API_KEY,
+      apiKey: process.env.ANTHROPIC_API_KEY,
     });
   }
 
@@ -67,7 +67,7 @@ JSON 형식으로만 응답해주세요.`;
 
     try {
       const message = await this.client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 8000,
         messages: [{
           role: 'user',

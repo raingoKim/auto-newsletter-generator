@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
@@ -19,20 +20,16 @@ async function main() {
   console.log(chalk.cyan(BANNER));
 
   try {
+    // API Key 확인
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error(chalk.red('\n❌ ANTHROPIC_API_KEY가 .env 파일에 설정되지 않았습니다.'));
+      console.log(chalk.yellow('\n.env 파일을 열고 API Key를 입력하세요:'));
+      console.log(chalk.white('ANTHROPIC_API_KEY=sk-ant-api03-your-key-here\n'));
+      process.exit(1);
+    }
+
     // 사용자 입력 받기
     const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'apiKey',
-        message: 'Anthropic API Key를 입력하세요:',
-        default: process.env.ANTHROPIC_API_KEY,
-        validate: (input) => {
-          if (!input || input.trim() === '') {
-            return 'API Key는 필수입니다!';
-          }
-          return true;
-        }
-      },
       {
         type: 'input',
         name: 'topic',
@@ -68,7 +65,7 @@ async function main() {
     console.log('\n' + chalk.yellow('━'.repeat(60)));
 
     // 뉴스레터 생성기 초기화
-    const generator = new NewsletterGenerator(answers.apiKey);
+    const generator = new NewsletterGenerator();
     const storage = new StorageManager();
 
     // 1단계: 콘텐츠 생성
