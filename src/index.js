@@ -45,10 +45,17 @@ async function main() {
         }
       },
       {
+        type: 'confirm',
+        name: 'saveToObsidian',
+        message: '옵시디언 볼트에도 저장하시겠습니까?',
+        default: true
+      },
+      {
         type: 'input',
         name: 'obsidianFolder',
         message: '옵시디언 폴더명을 입력하세요:',
         default: 'Newsletter',
+        when: (answers) => answers.saveToObsidian,
         validate: (input) => {
           if (!input || input.trim() === '') {
             return '폴더명은 필수입니다!';
@@ -111,15 +118,17 @@ async function main() {
       throw error;
     }
 
-    // 5단계: 옵시디언 저장
-    const spinner5 = ora(chalk.blue('옵시디언 볼트에 저장하고 있습니다...')).start();
+    // 5단계: 옵시디언 저장 (선택사항)
+    if (answers.saveToObsidian) {
+      const spinner5 = ora(chalk.blue('옵시디언 볼트에 저장하고 있습니다...')).start();
 
-    try {
-      await storage.saveToObsidian(answers.obsidianFolder, answers.topic, markdownContent);
-      spinner5.succeed(chalk.green('✓ 옵시디언 저장 완료!'));
-    } catch (error) {
-      spinner5.fail(chalk.red('✗ 옵시디언 저장 실패'));
-      throw error;
+      try {
+        await storage.saveToObsidian(answers.obsidianFolder, answers.topic, markdownContent);
+        spinner5.succeed(chalk.green('✓ 옵시디언 저장 완료!'));
+      } catch (error) {
+        spinner5.fail(chalk.red('✗ 옵시디언 저장 실패'));
+        throw error;
+      }
     }
 
     console.log('\n' + chalk.yellow('━'.repeat(60)));
@@ -131,7 +140,9 @@ async function main() {
     console.log(chalk.white(`   섹션 수: ${contentData.sections.length}개`));
     console.log(chalk.white(`   저장 위치:`));
     console.log(chalk.white(`     - 로컬: News Completion 폴더`));
-    console.log(chalk.white(`     - 옵시디언: ${answers.obsidianFolder} 폴더`));
+    if (answers.saveToObsidian) {
+      console.log(chalk.white(`     - 옵시디언: ${answers.obsidianFolder} 폴더`));
+    }
     console.log('\n' + chalk.yellow('━'.repeat(60)) + '\n');
 
   } catch (error) {
